@@ -11,8 +11,8 @@ hp_health = 0
 spatk = 0
 spdef = 0
 p_speed = 0
-weight = 1.0
-height = 1.0
+weight_kg = 1.0
+height_m = 1.0
 type_1 = ""
 type_2 = ""
 with open('/workspace/info2602a2/App/pokemon.csv','r') as csv_file:
@@ -57,21 +57,21 @@ with open('/workspace/info2602a2/App/pokemon.csv','r') as csv_file:
             defen = None
 
 
-        weight = line['weight_kg']
-        if weight == "":
-            weight = None
+        weight_kg = line['weight_kg']
+        if weight_kg == "":
+            weight_kg = None
 
-        height = line['height_m']
-        if height =="":
-            height = None
+        height_m = line['height_m']
+        if height_m =="":
+            height_m = None
         
         type_2 = line['type2']
         if type_2 == "":
             type_2 = None
 
-        pokemon_list.append(Pokemon(name = p_name, attack = atk, defense = defen,
-        hp = hp_health, height_m = height, sp_attack = spatk, sp_defense = spdef,
-        speed = p_speed, type1 = type_1, type2 = type_2, weight_kg = weight
+        pokemon_list.append(Pokemon(name = line['name'], attack = line['attack'], defense = line['defense'],
+        hp = line['hp'], height = height_m, sp_attack = line['sp_attack'], sp_defense = line['sp_defense'],
+        speed = line['speed'], type1 = line['type1'], type2 = type_2, weight = weight_kg
         ))
 
     
@@ -80,12 +80,12 @@ for pokemon in pokemon_list:
     db.session.add(pokemon)
     #print(obj.attack, obj.defense, obj.height_m, obj.hp, obj.name, obj.sp_attack, obj.sp_defense, obj.speed, obj.type1, obj.type2, obj.weight_kg)
     #print(obj.toDict())
-db.session.commit
+db.session.commit()
 
   
 poke = Pokemon.query.all()
 for w in poke:
-    print(w.weight_kg)
+    print(w.weight)
     
 
 # add code to parse csv, create and save pokemon objects

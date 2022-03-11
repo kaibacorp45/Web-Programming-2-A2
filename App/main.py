@@ -41,8 +41,8 @@ jwt = JWT(app, authenticate, identity)
 
 @app.route('/')
 def index():
-  poke = Pokemon.query.filter_by
-  return render_template('index.html') 
+  poke = Pokemon.query.all()
+  return render_template('index.html', poke=poke) 
 
 @app.route('/pokemon', methods=['GET'])
 def list_pokemon():
