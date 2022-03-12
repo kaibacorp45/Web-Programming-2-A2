@@ -45,7 +45,15 @@ def index():
   return render_template('index.html', poke=poke) 
 
 @app.route('/pokemon', methods=['GET'])
-def list_pokemon():
+def pokemon():
+  poke = Pokemon.query.all()
+  pokemon_list = []
+  for p in poke:
+    pokemon_list.append(p.toDict())
+  return json.dumps(pokemon_list)
+
+@app.route('/signup', methods=['POST'])
+def signup():
   userdata = request.get_json()
 
   olduser = User.query.filter_by(username=userdata['username']).first()
@@ -54,14 +62,69 @@ def list_pokemon():
     olduser = User.query.filter_by(email=userdata['email']).first()
 
   if olduser:
-    return 'username or email already exists'
+    return "username or email already exists"
 
   else:
     newuser = User(username=userdata['username'], email=userdata['email'])
     newuser.set_password(userdata['password'])
     db.session.add(newuser)
     db.session.commit()
-  return 'user created'
+  return "user created"
+
+@app.route('/mypokemon', methods=['POST'])
+@jwt_required()
+def getmypokemon():
+  userdata = request.get_json()
+  my_pokemon = MyPokemon(id=current_identity.id, pid=userdata['pid'], name = userdata['name'])
+
+  try:
+    db.session.add(my_pokemon)
+    db.session.commit()
+
+  except IntegrityError:
+    db.session.rollback()
+    return 'No Pokemon captured!'
+  return my_pokemon.name + ' captured', 201
+
+
+@app.route('/mypokemon', methods=['GET'])
+@jwt_required()
+def getlistmypokemon():
+  pokemon_l = MyPokemon.query.filter_by(id=current_identity.id).all()
+  pokemon_l = [pokemon_l.toDict() for poke in pokemon_l] # list comprehension which converts todo objects to dictionaries
+  return json.dumps(pokemon_l)
+
+@app.route('/mypokemon/<n>', methods=['GET'])
+@jwt_required()
+def getpokemon(n):
+  getpokemon = MyPokemon.query.filter_by(id=current_identity.id, bid=n).first()
+  if getpokemon == None:
+    return 'No pokemon captured'
+  return json.dumps(getpokemon.toDict())
+
+@app.route('/mypokemon/<n>',methods=['PUT'])
+@jwt_required()
+def updatepokemon(n):
+  pokemon = MyPokemon.query.filter_by(id=current_identity.id, bid=n).first()
+  if pokemon == None:
+    return 'no pokemon captured'
+  data = request.get_json()
+  if 'name' in data: # we can't assume what the user is updating wo we check for the field
+    pokemon.name = data['name']
+  db.session.add(pokemon)
+  db.session.commit()
+  return 'Updated', 201
+
+  @app.route('/mypokemon/<n>',methods=['DELE'])
+  @jwt_required()
+  def deletepokemon(n):
+    pokemon = Pokemon.query.filter_by(id=current_identity.id, bid=n).first()
+    if pokemon == None:
+      return 'No pokemon Captured'
+    db.session.delete(pokemon) # delete the object
+    db.session.commit()
+    return 'Deleted', 204
+
 
 @app.route('/app')
 def client_app():

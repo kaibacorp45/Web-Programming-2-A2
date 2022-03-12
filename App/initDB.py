@@ -76,18 +76,9 @@ with open('/workspace/info2602a2/App/pokemon.csv','r') as csv_file:
 
     
 for pokemon in pokemon_list:
-        #print(obj.type2)
     db.session.add(pokemon)
-    #print(obj.attack, obj.defense, obj.height_m, obj.hp, obj.name, obj.sp_attack, obj.sp_defense, obj.speed, obj.type1, obj.type2, obj.weight_kg)
-    #print(obj.toDict())
 db.session.commit()
-
-  
-poke = Pokemon.query.all()
-for w in poke:
-    print(w.weight)
     
-
 # add code to parse csv, create and save pokemon objects
 
 # replace any null values with None to avoid db errors
